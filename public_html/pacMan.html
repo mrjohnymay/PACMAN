@@ -54,9 +54,10 @@ and open the template in the editor.
             inicializarObjeto(jugador, mapa);
             mapa[jugador[0]][jugador[1]] = 3;
             
-            fantasma1[3] = asignarDireccion(fantasma1, mapa);
-            fantasma2[3] = asignarDireccion(fantasma2, mapa);
-            fantasma3[3] = asignarDireccion(fantasma3, mapa);
+            fantasma1[2] = asignarDireccion(fantasma1, mapa);
+            fantasma2[2] = asignarDireccion(fantasma2, mapa);
+            fantasma3[2] = asignarDireccion(fantasma3, mapa);
+            jugador[2] = asignarDireccion(jugador, mapa);
             
             function inicializarObjeto(ob, mapa){
                 var x = 0;
@@ -113,9 +114,10 @@ and open the template in the editor.
                 }
             }
             
-            document.write(fantasma1[0] + " " + fantasma1[1] + " " + fantasma1[3] + "<br>");
-            document.write(fantasma2[0] + " " + fantasma2[1] + " " + fantasma2[3] + "<br>");
-            document.write(fantasma3[0] + " " + fantasma3[1] + " " + fantasma3[3] + "<br>");
+            document.write(fantasma1[0] + " " + fantasma1[1] + " " + fantasma1[2] + "<br>");
+            document.write(fantasma2[0] + " " + fantasma2[1] + " " + fantasma2[2] + "<br>");
+            document.write(fantasma3[0] + " " + fantasma3[1] + " " + fantasma3[2] + "<br>");
+            document.write(jugador[0] + " " + jugador[1] + " " + jugador[2] + "<br>");
             
         </script>
     </head>

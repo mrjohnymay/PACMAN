@@ -43,22 +43,79 @@ and open the template in the editor.
             mapa[28]=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; 
             mapa[29]=[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             
-            for (var i = 0; i < mapa[i].length; i++) {
-                for (var j = 0; j < mapa.length; j++) {
-                    if (mapa[i][j]===0) {
-                        document.write("<span style='background-color:red'>" + mapa[i][j] + " </span>");
-                    } else {
-                        document.write(mapa[i][j] + " ");
-                    }
-                }
-                document.write("<br>");
-            }
-            
             var fantasma1 = new Array(3);
             var fantasma2 = new Array(3);
             var fantasma3 = new Array(3);
             var jugador = new Array(4);
+            
+            inicializarObjeto(fantasma1, mapa);
+            inicializarObjeto(fantasma2, mapa);
+            inicializarObjeto(fantasma3, mapa);
+            inicializarObjeto(jugador, mapa);
+            mapa[jugador[0]][jugador[1]] = 3;
+            
+            fantasma1[3] = asignarDireccion(fantasma1, mapa);
+            fantasma2[3] = asignarDireccion(fantasma2, mapa);
+            fantasma3[3] = asignarDireccion(fantasma3, mapa);
+            
+            function inicializarObjeto(ob, mapa){
+                var x = 0;
+                var y = 0;
+                
+                while(mapa[x][y] === 0 || mapa[x][y] === 2 || mapa[x][y] === 3) {
+                    x = Math.floor(Math.random() * 30);
+                    y = Math.floor(Math.random() * 30);
+                }
+                
+                ob[0] = x;
+                ob[1] = y;
 
+                mapa[x][y] = 2;
+            }
+            
+            function asignarDireccion(fantasma, mapa){
+                var ar = parseInt(fantasma[0]-1);
+                var ab = parseInt(fantasma[0]+1);
+                var de = parseInt(fantasma[1]+1);
+                var iz = parseInt(fantasma[1]-1);
+                
+                while (mapa[ar][1] === 0 || mapa[ab][1] === 0 || mapa[0][de] === 0 || mapa[0][iz] === 0) {
+                    var al = Math.floor(Math.random() * 4);
+                    
+                    if (al === 0) {
+                        return ar;
+                    } else if (al === 1) {
+                        return ab;
+                    } else if (al === 2) {
+                        return de;
+                    } else {
+                        return iz;
+                    }
+                }                
+            }
+            
+            mostrarTablero(mapa);
+            
+            function mostrarTablero(mapa){
+                for (var i = 0; i < mapa[0].length; i++) {
+                    for (var j = 0; j < mapa.length; j++) {
+                        if (mapa[i][j]=== 0) {
+                            document.write("<span style='background-color:red'>" + mapa[i][j] + " </span>");
+                        } else if (mapa[i][j] === 2){
+                            document.write("<span style='background-color:purple'>" + mapa[i][j] + " </span>");
+                        } else if (mapa[i][j] === 3) {
+                            document.write("<span style='background-color:yellow'>" + mapa[i][j] + " </span>");
+                        } else {
+                            document.write(mapa[i][j] + " ");
+                        }
+                    }
+                    document.write("<br>");
+                }
+            }
+            
+            document.write(fantasma1[0] + " " + fantasma1[1] + " " + fantasma1[3] + "<br>");
+            document.write(fantasma2[0] + " " + fantasma2[1] + " " + fantasma2[3] + "<br>");
+            document.write(fantasma3[0] + " " + fantasma3[1] + " " + fantasma3[3] + "<br>");
             
         </script>
     </head>

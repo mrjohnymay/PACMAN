@@ -9,17 +9,27 @@ and open the template in the editor.
         <title>TODO supply a title</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://fonts.googleapis.com/css?family=Righteous" rel="stylesheet">
     </head>
-    <body id="all">
+    <body id="all" style="text-align: center; background-image: url('bg.jpg');">
+        <!--Inserto todas las imágenes que voy a usar-->
         <img src="piedra.jpg"    id="piedra"    style="display: none;">
         <img src="tierra.jpg"       id="tierra"       style="display: none;">
         <img src="pacman.jpg" id="pacman" style="display: none;">
         <img src="fantasma.jpg" id="fantasma" style="display: none;">
+        
+        <!--Creo el canvas y le doy estilo a los textos-->
+        <canvas id="espai" width="800" height="800"> </canvas>
+        <div style="color: white; background-color: black; padding: 5px; font-family: 'Righteous', cursive;">
+            <h2>Puntos:</h2>
+            <p id="puntuacio"></p><p id="puntuaciomax"></p>
+        </div>
+        <script>
 
-        <canvas id="espai" width="900" height="900"> </canvas>
-        <div>TODO write content</div>
-                <script>
-
+            //Estas son las variables con las que voy a calcular el tiempo y la puntuación máxima
+            puntos = sessionStorage.getItem('puntos');
+            tiempo = 0;
+            maxPuntos = sessionStorage.getItem('maxPuntos');
             mapa = new Array(30);
 
             mapa[0] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -52,13 +62,12 @@ and open the template in the editor.
             mapa[27] = [0, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0];
             mapa[28] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
             mapa[29] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-
+            
+            //creo los objetos, los inicializo y les asigno una direccion
             fantasma1 = new Array(3);
             fantasma2 = new Array(3);
             fantasma3 = new Array(3);
             jugador = new Array(4);
-
-            //mapa[jugador[0]][jugador[1]] = 3;
 
             inicializarObjeto(fantasma1);
             inicializarObjeto(fantasma2);
@@ -70,64 +79,97 @@ and open the template in the editor.
             fantasma3[2] = asignarDireccion(fantasma3);
             jugador[2] = asignarDireccion(jugador);
             mover(jugador);
-
-            //mostrarTablero();
-            var a = setInterval(movimiento, 150);
+            
+            //Variable para comprovar que ha terminado la partida
+            fin = false;
+            
+            //Creo el interval para cada 0.1 segundos y leo las teclas
+            var a = setInterval(movimiento, 100);
             var element = document.getElementById("all");
             element.addEventListener("keydown", notificaObservador);
 
+            //Esta funcion permite el movimiento general de todo el juego
             function movimiento() {
-                //jugador[3] = element;
+                if (fin === true) {
+                    alert("Has perdido. Estos son tus puntos: " + Math.round(puntos / 10));
+                    if (sessionStorage.getItem('puntos') > maxPuntos) {
+                        sessionStorage['maxPuntos'] = maxPuntos;
+                    }
+                    sessionStorage['puntos'] = 0;
+                    clearInterval(a);
+                    location.reload();
+                }
+                //Aqui hago que cada objeto se mueva
                 direccion(fantasma1);
                 direccion(fantasma2);
                 direccion(fantasma3);
                 entradaDireccion();
                 moverJugador(jugador);
-                //mapa[ob[0]][ob[1]] = 2;
-                //mapa[ob[0]][ob[1]] = 1;
+                
+                //Muestro el juego
                 pinta();
-                //mostrarTablero();
+
+                //Indico en el array que hay un fantasma
                 mapa[fantasma1[0]][fantasma1[1]] = 2;
                 mapa[fantasma2[0]][fantasma2[1]] = 2;
                 mapa[fantasma3[0]][fantasma3[1]] = 2;
                 if (chocan() === true) {
-                    alert("Has perdido");
-                    clearInterval(a);
+                    fin = true;
                 }
+                //Miro si han chocado y asigno el jugador al tablero
                 mapa[jugador[0]][jugador[1]] = 3;
-                //refresh();
-                /*document.write(fantasma1[0] + " " + fantasma1[1] + " " + fantasma1[2] + "<br>");
-                 document.write(fantasma2[0] + " " + fantasma2[1] + " " + fantasma2[2] + "<br>");
-                 document.write(fantasma3[0] + " " + fantasma3[1] + " " + fantasma3[2] + "<br>");
-                 document.write(jugador[0] + " " + jugador[1] + " " + jugador[2] + jugador[3] + "<br>");
-                 document.write(chocan() + "<br>");*/
+
                 pinta();
-                //mostrarTablero();
-                //chocan();
+                
+                //Limpio el trazo de los objetos sobre el tablero
                 mapa[fantasma1[0]][fantasma1[1]] = 1;
                 mapa[fantasma2[0]][fantasma2[1]] = 1;
                 mapa[fantasma3[0]][fantasma3[1]] = 1;
                 mapa[jugador[0]][jugador[1]] = 1;
+                puntos++;
+
+                //Inicializo la máxima puntuacion y le asigno una mayor
+                if (maxPuntos === null) {
+                    maxPuntos = Math.round(puntos / 10);
+                }
+
+                if (Math.round(puntos / 10) > maxPuntos) {
+                    maxPuntos = Math.round(puntos / 10);
+                }
+                
+                //Aqui hago los calculos de puntuacion segun el tiempo
+                tiempo++;
+                document.getElementById("puntuacio").innerHTML = "Puntuació: " + Math.round(puntos / 10);
+                document.getElementById("puntuaciomax").innerHTML = "Màxima puntuació: " + sessionStorage.getItem('maxPuntos');
+                tiempo2 = Math.round(tiempo / 10);
+                if (tiempo2 === 10) {
+                    alert("Has ganado. Pulsa enter para la siguiente partida");
+                    sessionStorage.setItem('puntos', puntos);
+                    clearInterval(a);
+                    location.reload();
+                }
             }
             
-            function entradaDireccion(){
-                if (jugador[3] === "ArrowUp" && (mapa[jugador[0]][jugador[1]-1] === 1)){
+            //Con esta función paso el dato del evento al array del jugador para poder moverlo
+            function entradaDireccion() {
+                if (jugador[3] === "ArrowUp" && (mapa[jugador[0]][jugador[1] - 1] === 1)) {
                     jugador[2] = "ar";
                 }
-                if (jugador[3] === "ArrowRight" && (mapa[jugador[0]+1][jugador[1]] === 1)){
+                if (jugador[3] === "ArrowRight" && (mapa[jugador[0] + 1][jugador[1]] === 1)) {
                     jugador[2] = "de";
                 }
-                if (jugador[3] === "ArrowDown" && (mapa[jugador[0]][jugador[1]+1] === 1)){
+                if (jugador[3] === "ArrowDown" && (mapa[jugador[0]][jugador[1] + 1] === 1)) {
                     jugador[2] = "ab";
                 }
-                if (jugador[3] === "ArrowLeft" && (mapa[jugador[0]-1][jugador[1]] === 1)){
+                if (jugador[3] === "ArrowLeft" && (mapa[jugador[0] - 1][jugador[1]] === 1)) {
                     jugador[2] = "iz";
                 }
             }
-            
+
+            //Con esta miro si esta asignado a una dirección y si hay un pared of cruce para asignar otra o continuar
             function direccion(ob) {
                 var dir = ob[2];
-                
+
                 if (dir === "ar") {
                     if ((mapa[parseInt(ob[0] - 1)][ob[1]]) === 0 || esCruilla(ob) === true) {
                         ob[2] = asignarDireccion(ob);
@@ -162,6 +204,7 @@ and open the template in the editor.
                 }
             }
 
+            //Con esta muevo los fantasmas añadiendo un punto en el eje
             function mover(ob) {
                 if (ob[2] === "ar") {
                     ob[0] = parseInt(ob[0] - 1);
@@ -174,21 +217,23 @@ and open the template in the editor.
                 }
             }
             
+            //Con esta hago lo mismo pero con el jugador
             function moverJugador(ob) {
-                if (ob[2] === "ar" && (mapa[jugador[0]][jugador[1]-1] === 1)) {
+                if (ob[2] === "ar" && (mapa[jugador[0]][jugador[1] - 1] === 1)) {
                     ob[1] = ob[1] - 1;
                 }
-                if (ob[2] === "ab" && (mapa[jugador[0]][jugador[1]+1] === 1)) {
+                if (ob[2] === "ab" && (mapa[jugador[0]][jugador[1] + 1] === 1)) {
                     ob[1] = ob[1] + 1;
                 }
-                if (ob[2] === "de"&& (mapa[jugador[0]+1][jugador[1]] === 1)) {
+                if (ob[2] === "de" && (mapa[jugador[0] + 1][jugador[1]] === 1)) {
                     ob[0] = ob[0] + 1;
                 }
-                if (ob[2] === "iz"&& (mapa[jugador[0]-1][jugador[1]] === 1)) {
+                if (ob[2] === "iz" && (mapa[jugador[0] - 1][jugador[1]] === 1)) {
                     ob[0] = ob[0] - 1;
                 }
             }
 
+            //En esta funcion le añado una posicion inicial al objeto que este libre
             function inicializarObjeto(ob) {
                 var x = 0;
                 var y = 0;
@@ -202,6 +247,7 @@ and open the template in the editor.
                 ob[1] = y;
             }
 
+            //Retorno un parámetro válido para el array del objeto según el número aleatorio y válido que haya tocado
             function asignarDireccion(ob) {
                 var al;
 
@@ -220,6 +266,7 @@ and open the template in the editor.
                 }
             }
 
+            //Aquí miro si la dirección en la que va hay una pared
             function esPared(al, ob) {
                 var ar = mapa[ob[0] - 1][ob[1]];
                 var ab = mapa[ob[0] + 1][ob[1]];
@@ -239,6 +286,7 @@ and open the template in the editor.
                 }
             }
 
+            //Hago lo mismo que en la anterior pero comprovando que es un cruce
             function esCruilla(ob) {
                 var ar = mapa[ob[0] - 1][ob[1]];
                 var ab = mapa[ob[0] + 1][ob[1]];
@@ -267,6 +315,7 @@ and open the template in the editor.
                 }
             }
 
+            //Aquí miro si en el siguiente movimiento el jugador choca con un fantasma
             function chocan() {
                 if ((mapa[jugador[0] - 1][jugador[1]] === 2) || (mapa[jugador[0]][jugador[1]] === 2)) {
                     return true;
@@ -282,65 +331,17 @@ and open the template in the editor.
                 }
             }
 
-            /*function asignarDireccion(ob) {
-             //var ar = parseInt(ob[0] - 1);
-             //var ab = parseInt(ob[0] + 1);
-             //var de = parseInt(ob[1] + 1);
-             //var iz = parseInt(ob[1] - 1);
-             //var al = 99;
-             var dir;
-             
-             while (((al === 0) && ((mapa[parseInt(ob[0]-1)][ob[1]]) === 0)) || ((al === 1) && ((mapa[parseInt(ob[0]+1)][ob[1]]) === 0)) || ((al === 2) && ((mapa[ob[0]][parseInt(ob[1]+1)]) === 0)) || ((al === 3) && ((mapa[ob[0]][parseInt(ob[1]-1)]) === 0))) {
-             al = random();
-             
-             if (al === 0){
-             dir = "ar";
-             }
-             if (al === 1){
-             dir = "ab";
-             }
-             if (al === 2){
-             dir = "de";
-             }
-             if (al === 3){
-             dir = "iz";
-             }
-             }
-             
-             return dir;
-             }*/
-
+            //Elijo un número aleatório para asignar una dirección
             function random() {
                 return Math.floor(Math.random() * 4);
             }
-
-            /*function mostrarTablero() {
-             for (var i = 0; i < mapa[0].length; i++) {
-             for (var j = 0; j < mapa.length; j++) {
-             if (mapa[i][j] === 0) {
-             document.write("<span style='background-color:red; color: red;'>" + mapa[i][j] + " </span>");
-             } else if (mapa[i][j] === 2) {
-             document.write("<span style='background-color:purple; color: purple;'>" + mapa[i][j] + " </span>");
-             } else if (mapa[i][j] === 3) {
-             document.write("<span style='background-color:yellow; color: yellow;'>" + mapa[i][j] + " </span>");
-             } else {
-             document.write("<span style='color: white;'>" + mapa[i][j] + " </span>");
-             }
-             }
-             document.write("<br>");
-             }
-             }*/
-
-            function refresh() {
-                document.body.innerHTML = " ";
-            }
-
+            
+            //Guardo el dato de la tecla introducida en el array del jugador
             function notificaObservador(e) {
                 jugador[3] = e.key;
-                console.log(jugador[2]);
-                console.log(jugador[3]);
             }
 
+            //Muestro todo el mapa
             function pinta()
             {
                 var canvas = document.getElementById("espai");
@@ -359,14 +360,10 @@ and open the template in the editor.
                         } else {
                             img = document.getElementById("pacman");
                         }
-                        ctx.drawImage(img, i * 30, j * 30, 30, 30);
+                        ctx.drawImage(img, i * 25, j * 25, 25, 25);
                     }
                 }
             }
-
-            //document.write(fantasma1[0] + " " + fantasma1[1] + " " + fantasma1[2] + "<br>");
-            //document.write(fantasma2[0] + " " + fantasma2[1] + " " + fantasma2[2] + "<br>");
-            //document.write(fantasma3[0] + " " + fantasma3[1] + " " + fantasma3[2] + "<br>");
         </script>
     </body>
 </html>
